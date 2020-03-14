@@ -1,4 +1,5 @@
 // var fetch = require('node-fetch');
+const movieData = require('./movies.json');
 
 const { Pool } = require('pg');
 // let 
@@ -25,9 +26,8 @@ const directors = async (movieData) => {
   // return new Promise((resolve, reject) => {
   const client = await pool.connect()
   await client
-    .query(
-      `create table if not exists  director (id  serial primary key,director_name varchar(40) unique)`
-    )
+    .query(`create table if not exists  director (id  serial primary key,director_name varchar(40) unique)`);
+
   movieData.reduce((acc, res) => {
     if (acc[res.Director] == undefined) {
       acc[res.Director] = 1;
@@ -55,8 +55,8 @@ const movies = async (movieData) => {
     .query(
       `create table if not exists  movies (rank_id integer primary key,director_id integer,title varchar(50) unique ,Description text,
            Runtime integer,Genre varchar(30),Rating decimal(10,1),Metascore varchar(40),Votes integer, Gross_Earning_in_Mil varchar(30),
-           Actor varchar(40),Year integer,FOREIGN KEY (director_id) REFERENCES director (id) )`
-    )
+           Actor varchar(40),Year integer,FOREIGN KEY (director_id) REFERENCES director (id) ON DELETE CASCADE )`
+    );
 
   movieData.map(async movie => {
     await client
@@ -84,7 +84,8 @@ const movies = async (movieData) => {
   });
   client.release();
 };
-
+// directors(movieData);
+// movies(movieData);
 module.exports = { directors, movies };
 
 //console.log(mov);
