@@ -1,18 +1,6 @@
 // var fetch = require('node-fetch');
 const movieData = require('./movies.json');
-
-const { Pool } = require('pg');
-// let 
-const pool = new Pool({
-  user: 'neeraj',
-  host: 'localhost',
-  database: 'neeraj',
-  password: 'neeraj12',
-  port: 5432,
-  max: 2
-  // idleTimeoutMillis: 30000,
-  // connectionTimeoutMillis: 2000
-});
+const { pool } = require('./db.js');
 
 // pool.connect();
 // fetch(
@@ -84,8 +72,12 @@ const movies = async (movieData) => {
   });
   client.release();
 };
-// directors(movieData);
-// movies(movieData);
+
+async function createTable() {
+  await directors(movieData);
+  await movies(movieData);
+}
+createTable();
 module.exports = { directors, movies };
 
 //console.log(mov);

@@ -1,5 +1,7 @@
 const bodyparser = require('body-parser');
 const movie = require('../models/movies');
+const joi = require('joi');
+const { movie_validation } = require('../validation');
 
 var express = require('express');
 var router = express.Router();
@@ -21,12 +23,19 @@ router.get('/', async function (req, res) {
 
 });
 router.get('/:id', async function (req, res) {
-  const result = await movie.getById(req.params.id);
+  const { error } = joi.validate(req.params, movie_validation.id);
 
-  if (result.rowCount != 0) {
-    res.send(result.rows);
-  } else {
-    res.status(404).send('movie Not Found')
+  if (error) {
+    res.status(400).json(error);
+  }
+  else {
+    const result = await movie.getById(req.params.id);
+
+    if (result.rowCount != 0) {
+      res.send(result.rows);
+    } else {
+      res.status(404).send('movie Not Found')
+    }
   }
 
 });
