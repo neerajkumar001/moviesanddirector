@@ -4,75 +4,130 @@ const sequelize = new Sequelize('movieAndDirectorApi', 'neeraj', 'neeraj12', {
     host: 'localhost',
     dialect: 'postgres'
 });
-sequelize
-    .authenticate()
-    .then(() => {
-        console.log('Connection has been established successfully.');
-        console.log("Success!");
-        const director = sequelize.define('testmovies', {
-            id: {
-                type: Sequelize.INTEGER(11),
-                allowNull: false,
-                primaryKey: true,
-                autoIncrement: true
-            },
-            director_name: {
-                type: Sequelize.STRING, unique: true,
+
+// sequelize
+// .authenticate();
+
+const director = sequelize.define('directors', {
+    id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    director_name: {
+        type: Sequelize.STRING, unique: true,
+    }
+}, {
+    timestamps: false
+})
+function directortable() {
+    director.sync({ force: true }).then(() => {
+        movieData.reduce((acc, res) => {
+            if (acc[res.Director] == undefined) {
+                acc[res.Director] = 1;
+
+                director.create({
+                    director_name: res['Director']
+                })
+
+
             }
-        }, {
-            timestamp: false
-        })
-        director.sync({ force: true }).then(() => {
-            movieData.reduce((acc, res) => {
-                if (acc[res.Director] == undefined) {
-                    acc[res.Director] = 1;
-
-                    director.create({
-                        director_name: res['Director']
-                    })
-
-
-                }
-                return acc;
-            }, {});
-        })
-        // var Posts = sequelize.define('posts', {
-        //     title: {
-        //         type: Sequelize.STRING
-        //     },
-        //     content: {
-        //         type: Sequelize.STRING
-        //     }
-        // }, {
-        //     freezeTableName: true
-        // });
-
-        // Posts.sync().then(function () {
-
-        //     return Posts.create({
-        //         title: 'Getting Started with PostgreSQL and Sequelize',
-        //         content: 'Hello there'
-        //     });
-        // });
-
-
+            return acc;
+        }, {});
     })
-    .catch(err => {
-        console.error('Unable to connect to the database:', err);
-    });
-// const Sequelize = require('sequelize');
-// const sequelize = new Sequelize('api', 'neeraj', 'neeraj12', {
-//     host: 'localhost',
-//     dialect: 'postgres',
-//     // pool: {
-//     //     max: 9,
-//     //     min: 0,
-//     //     idle: 10000
-//     // }
-// });
+}
 
-// sequelize.authenticate().then(() => {
-//     console.log("Success!");
-// }).catch((err) => {
-//     console.log(err);
-// });
+
+const movies = sequelize.define('movies', {
+    rank_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+    },
+
+
+    director_id: {
+        type: Sequelize.INTEGER,
+        references: {
+            model: 'directors',
+            key: 'id'
+        },
+        // references: 'dirs', // <<< Note, its table's name, not object name
+        // referencesKey: 'id', // <<< Note, its a column name
+
+        onUpdate: "cascade",
+        onDelete: "cascade",
+    },
+    title: {
+        type: Sequelize.STRING, unique: true,
+    }, Description: {
+        type: Sequelize.STRING
+    }
+    ,
+    Runtime: Sequelize.INTEGER,
+    Genere: Sequelize.STRING,
+    Rating: Sequelize.FLOAT,
+    Metascore: Sequelize.STRING,
+    Votes: Sequelize.INTEGER,
+    Gross_Earning_in_Mil: Sequelize.FLOAT,
+    Actor: Sequelize.STRING,
+    Year: Sequelize.INTEGER
+
+
+
+
+}, {
+    timestamps: false
+})
+function movie_data() {
+    movies.sync({ force: true }).then(() => {
+
+        movieData.map(async movie => {
+            // console.log(movie)
+            await director.findAll({
+                where: {
+
+                    director_name: movie['Director']
+                }
+            }).then((res) => {
+                //console.log(res[0].dataValues.id)
+                movie.Director = res[0].dataValues.id;
+            })
+                .catch(err => {
+                    console.log('Not Present', err);
+                });
+
+            await movies.create({
+                rank_id: movie['Rank'],
+                director_id: movie['Director'],
+                title: movie.Title,
+                Description: movie.Description,
+                Runtime: movie.Runtime,
+                Genere: movie.Genre,
+                Rating: movie.Rating,
+                Metascore: movie.Metascore,
+                Votes: movie.Votes,
+                Gross_Earning_in_Mil: movie.Gross_Earning_in_Mil,
+                Actor: movie.Actor,
+                Year: movie.Year
+
+            })
+
+        });
+
+
+        console.log("table created")
+    })
+
+}
+async function Insertion() {
+    await directortable();
+    await movie_data();
+
+}
+Insertion();
+
+
+module.exports = { director };

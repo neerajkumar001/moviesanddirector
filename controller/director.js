@@ -9,13 +9,18 @@ var router = express.Router();
 router.use(bodyparser.json());
 router.get('/', async function (req, res) {
   const result = await director.getAll();
-  if (result.rowCount != 0) {
-    res.send(result.rows);
-  } else {
-    res.status(404).send('Empty')
+  if (!(result.rows)) {
+    res.status(401).send(result);
   }
+  else {
+    if (result.rowCount != 0) {
 
+      res.send(result.rows);
+    } else {
+      res.status(404).send('Empty')
+    }
 
+  }
 });
 router.get('/:id', async function (req, res) {
   const { error } = joi.validate(req.params, director_validation.id);
@@ -84,17 +89,23 @@ router.put('/:id', async function (req, res) {
     res.status(400).json(error);
   }
   else {
-    const result = await director.updateById(req.params.id, req.body.dirname);
+    const result = await director.updateById(req.params.id, req.body.director_name);
 
-    if (result.rowCount != 0) {
-      res.status(200).send('Director Name Updated');
+    if (!(result.rows)) {
+      res.send(result);
     }
+
+
     else {
-      res.send('Director ID not found');
+      if (result.rowCount != 0) {
+        res.status(200).send('Director Name Updated');
+      }
+      else {
+        res.send('Director ID not found');
+      }
     }
 
   }
-
 
 });
 

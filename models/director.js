@@ -1,4 +1,5 @@
 const { pool } = require('../db.js');
+const director = require('../testing');
 let directorsFunction = {};
 // async function runQuery(query) {
 //   const client = await pool.connect();
@@ -8,14 +9,23 @@ let directorsFunction = {};
 // }
 
 directorsFunction.getAll = async () => {
-  const client = await pool.connect();
-  const result = await client.query('select * from director order by id')
-  // let result = await runQuery();
-  if (result.rowCount != 0) {
-    return result.rows;
+  try {
+    // const client = await pool.connect();
+    // const result = await client.query('select * from director order by id')
+    const result = await director.findAll()
+    // let result = await runQuery();
+    if (result.rowCount != 0) {
+      console.log("hii")
+      return result;
 
-  } else {
-    return "No Detail found"
+    } else {
+      return "No Detail found"
+    }
+  }
+  catch (error) {
+
+    return error;
+
   }
 
 }
@@ -23,6 +33,7 @@ directorsFunction.getAll = async () => {
 directorsFunction.getById = async (id) => {
   const client = await pool.connect();
   const result = await client.query(`select * from director where id=$1`, [id])
+
   // console.log(id);output
   // let result = await runQuery(`select * from director where id=$1`, [id]);
   // let result = await runQuery(`select * from director where id=${id}`);
@@ -49,33 +60,39 @@ directorsFunction.insertData = async (directorName) => {
 
 }
 directorsFunction.deleteById = async (id) => {
-  // try {
-  const client = await pool.connect();
-  const result = await client.query(`delete from director where id = $1`, [id]);
-  //  let result = await runQuery(`delete from director where id = $1`, [id]);
-  // let result = await runQuery(`delete from director where id = ${id}`);
-  //   if (result.rowCount != 0) {
-  //     console.log("Director Details Deleted")
-  //   } else {
-  //     console.log("No Detail found")
-  //   }
-  // } catch (err) {
-  //   console.log(err);
+  try {
+    const client = await pool.connect();
+    const result = await client.query(`delete from director where id = $1`, [id]);
+    //  let result = await runQuery(`delete from director where id = $1`, [id]);
+    // let result = await runQuery(`delete from director where id = ${id}`);
+    //   if (result.rowCount != 0) {
+    //     console.log("Director Details Deleted")
+    //   } else {
+    //     console.log("No Detail found")
+    //   }
+    return result;
+  } catch (err) {
+    return err;
 
-  // }
-  return result;
+  }
+
 
 }
 directorsFunction.updateById = async (id, directorName) => {
-  const client = await pool.connect();
-  const result = await client.query(`update director set director_name = $2   where id = $1`, [id, directorName]);
-  // let result = await runQuery(`update director set director_name = $2   where id = $1`, [id, directorName]);
-  // if (result.rowCount != 0) {
-  //   console.log("Director Details Updated")
-  // } else {
-  //   console.log("No Detail Updated")
-  // }
-  return result;
+  try {
+    const client = await pool.connect();
+    const result = await client.query(`update director set director_name = $2   where id = $1`, [id, directorName]);
+    // let result = await runQuery(`update director set director_name = $2   where id = $1`, [id, directorName]);
+    // if (result.rowCount != 0) {
+    //   console.log("Director Details Updated")
+    // } else {
+    //   console.log("No Detail Updated")
+    // }
+    return result;
+  }
+  catch (error) {
+    return error;
+  }
 
 }
 

@@ -40,39 +40,63 @@ router.get('/:id', async function (req, res) {
 
 });
 router.post('/', async function (req, res) {
-  const movieDetail = Object.values(req.body);
-  const result = await movie.insertData(movieDetail);
+  const { error } = joi.validate(req.body, movie_validation.body);
 
-  if (result.rowCount != 0) {
-    res.status(200).send('movie Detail Inserted');
-  }
-  else {
-    res.send('movie Detail not found');
+  if (error) {
+    res.status(400).json(error);
+  } else {
+    const movieDetail = Object.values(req.body);
+    const result = await movie.insertData(movieDetail);
 
+    if (result.rowCount != 0) {
+      res.status(200).send('movie Detail Inserted');
+    }
+    else {
+      res.send('movie Detail not found');
+
+    }
   }
 
 });
 
 router.delete('/:id', async function (req, res) {
-  const result = await movie.deleteById(req.params.id);
+  const { error } = joi.validate(req.params, movie_validation.id);
 
-  if (result.rowCount != 0) {
-    res.send('movie deleted');
+  if (error) {
+    res.status(400).json(error);
   }
   else {
-    res.status(404).send('movie not found');
+    const result = await movie.deleteById(req.params.id);
+
+    if (result.rowCount != 0) {
+      res.send('movie deleted');
+    }
+    else {
+      res.status(404).send('movie not found');
+    }
   }
 
 });
 router.put('/:id', async function (req, res) {
 
-  const result = await movie.updateById(req.params.id, Object.values(req.body));
 
-  if (result.rowCount != 0) {
-    res.status(200).send('movie Name Updated');
-  }
-  else {
-    res.send('movie ID not found');
+  req.body.rank_id = req.params.id;
+
+  const { error } = joi.validate(req.body, movie_validation.body);
+
+  if (error) {
+    res.status(400).json(error);
+  } else {
+    // console.log(Object.values(req.body))
+    delete req.body.rank_id;
+    const result = await movie.updateById(req.params.id, Object.values(req.body));
+    console.log("hii");
+    if (result.rowCount != 0) {
+      res.status(200).send('movie Name Updated');
+    }
+    else {
+      res.send('movie ID not found');
+    }
   }
 
 
