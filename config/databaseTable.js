@@ -1,10 +1,6 @@
 const Sequelize = require('sequelize');
-const movieData = require('./movies.json');
-const sequelize = new Sequelize('movieAndDirectorApi', 'neeraj', 'neeraj12', {
-    host: 'localhost',
-    dialect: 'postgres'
-});
-
+const movieData = require('../movies_file/movies');
+const sequelize = require('./databaseConnection')
 // sequelize
 // .authenticate();
 
@@ -24,7 +20,7 @@ const director = sequelize.define('directors', {
 function directortable() {
     director.sync({ force: true }).then(() => {
         movieData.reduce((acc, res) => {
-            if (acc[res.Director] == undefined) {
+            if (acc[res.Directo00r] == undefined) {
                 acc[res.Director] = 1;
 
                 director.create({
@@ -116,9 +112,6 @@ function movie_data() {
             })
 
         });
-
-
-        console.log("table created")
     })
 
 }
@@ -127,7 +120,7 @@ async function Insertion() {
     await movie_data();
 
 }
-Insertion();
+// Insertion();
 
 
-module.exports = { director };
+module.exports = { director, movies };

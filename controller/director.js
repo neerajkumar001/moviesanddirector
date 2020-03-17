@@ -1,28 +1,25 @@
 const bodyparser = require('body-parser');
 const director = require('../models/director');
-const { director_validation } = require('../validation');
+const { director_validation } = require('../validation/directorValidation');
 var express = require('express');
 const joi = require('joi');
 var router = express.Router();
-// router.set('json spaces', 40);
-// Home page route
+
 router.use(bodyparser.json());
-router.get('/', async function (req, res) {
+router.get('/', async function (req, res, next) {
   const result = await director.getAll();
-  if (!(result.rows)) {
-    res.status(401).send(result);
-  }
-  else {
-    if (result.rowCount != 0) {
 
-      res.send(result.rows);
-    } else {
-      res.status(404).send('Empty')
-    }
-
+  if (result.length > 0) {
+    res.send(result);
+  } else if (result.length == 0) {
+    res.status(404).json({ message: 'Empty Table' })
+  } else {
+    next(result)
   }
+
+
 });
-router.get('/:id', async function (req, res) {
+router.get('/:id', async function (req, res, next) {
   const { error } = joi.validate(req.params, director_validation.id);
 
   if (error) {
@@ -30,38 +27,44 @@ router.get('/:id', async function (req, res) {
   }
   else {
     const result = await director.getById(req.params.id);
-
-    if (result.rowCount != 0) {
-      res.send(result.rows);
-    } else {
-      res.status(404).send('Director Not Found')
+    if (Array.isArray(result) && result.length) {
+      res.send(result);
+    }
+    else if (result.length == 0) {
+      res.status(404).json({ message: 'Director not found' })
+    }
+    else {
+      next(result);
     }
   }
 
 });
-router.post('/', async function (req, res) {
+router.post('/', async function (req, res, next) {
 
   const { error } = joi.validate(req.body, director_validation.name);
 
   if (error) {
-    res.status(400).send(error);
-    console.log("hello")
+    res.status(400).send(error.details);
   }
   else {
-    const result = await director.insertData(req.body.director_name);
 
-    if (result.rowCount != 0) {
-      res.status(200).send('Director Detail Inserted');
+    const result = await director.insertData(req.body.director_name);
+    if (result.errors) {
+      // res.send(result);
+      next(result)
+    } else if (result) {
+      res.status(200).json({ message: 'Director Detail Inserted' });
     }
     else {
-      res.send('Director Detail not found');
+      res.json({ message: 'Director Detail not Inserted' });
 
     }
+
   }
 
 });
 
-router.delete('/:id', async function (req, res) {
+router.delete('/:id', async function (req, res, next) {
   const { error } = joi.validate(req.params, director_validation.id);
 
   if (error) {
@@ -70,16 +73,19 @@ router.delete('/:id', async function (req, res) {
   else {
     const result = await director.deleteById(req.params.id);
 
-    if (result.rowCount != 0) {
-      res.send('Director deleted');
+    if (result != 0) {
+      res.json({ message: 'Director deleted' });
+    }
+    else if (result == 0) {
+      res.status(404).json({ message: 'Director not found' });
     }
     else {
-      res.status(404).send('Director not found');
+      next(result);
     }
   }
 
 });
-router.put('/:id', async function (req, res) {
+router.put('/:id', async function (req, res, next) {
   let validate_object = req.body;
 
   validate_object.id = req.params.id;
@@ -91,21 +97,19 @@ router.put('/:id', async function (req, res) {
   else {
     const result = await director.updateById(req.params.id, req.body.director_name);
 
-    if (!(result.rows)) {
-      res.send(result);
+
+    if (result[0] > 0) {
+      res.status(200).json({ message: 'Director Name Updated' });
     }
-
-
+    else if (result[0] == 0) {
+      res.json({ message: 'Director id not found' })
+    }
     else {
-      if (result.rowCount != 0) {
-        res.status(200).send('Director Name Updated');
-      }
-      else {
-        res.send('Director ID not found');
-      }
+      next(result)
     }
-
   }
+
+
 
 });
 
