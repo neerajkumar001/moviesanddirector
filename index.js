@@ -13,7 +13,7 @@ const fs = require('fs')
 //     res.sendFile(__dirname + '/index.html');
 // })
 app.use(morgan('dev'));
-// , morgan('tiny')
+//  morgan('tiny')
 var accessLogStream = fs.createWriteStream('./access.log', { flags: 'a' });
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use('/director', director);
