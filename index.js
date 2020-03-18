@@ -2,7 +2,7 @@
 const express = require('express');
 const director = require('./controller/director')
 const movie = require('./controller/movies')
-const host = '127.0.0.1';
+// const host = '127.0.0.1';
 const port = process.env.PORT || 3000;
 let app = express();
 var morgan = require('morgan');
@@ -25,7 +25,7 @@ app.use(middleware);
 // app.get('/movies.json', (req, res) => {
 //     res.sendFile(__dirname + '/movies.json');
 // });
-app.listen(port, host, () => {
-    console.log(host + ' host started at ' + port + ' port');
+app.listen(port, () => {
+    console.log(' host started at ' + port + ' port');
 });
 
