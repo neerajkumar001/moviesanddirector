@@ -9,9 +9,9 @@ var morgan = require('morgan');
 const middleware = require('./middleware/errorMiddleware')
 
 const fs = require('fs')
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/index.html');
-// })
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+})
 app.use(morgan('dev'));
 //  morgan('tiny')
 var accessLogStream = fs.createWriteStream('./access.log', { flags: 'a' });
