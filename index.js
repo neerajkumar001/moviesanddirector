@@ -10,7 +10,7 @@ const middleware = require('./middleware/errorMiddleware')
 
 const fs = require('fs')
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile('./index.html');
 })
 app.use(morgan('dev'));
 //  morgan('tiny')
