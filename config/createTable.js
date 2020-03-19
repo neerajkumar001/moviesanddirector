@@ -1,7 +1,7 @@
 const { director, movies } = require('./databaseTable')
 
 const movieData = require('../movies_file/movies');
-function directortable() {
+async function directortable() {
     director.sync({ force: true }).then(() => {
         movieData.reduce((acc, res) => {
             if (acc[res.Director] == undefined) {
@@ -17,7 +17,7 @@ function directortable() {
         }, {});
     })
 }
-function movie_data() {
+async function movie_data() {
     movies.sync({ force: true }).then(() => {
 
         movieData.map(async movie => {
@@ -56,10 +56,8 @@ function movie_data() {
 
 }
 async function Insertion() {
-    await directortable().then(() => {
-        movie_data()
-    });
-
+    await directortable();
+    await movie_data();
 
 }
 Insertion();
