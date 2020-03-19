@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-const sequelize = require('./databaseConnection')
+const sequelize = require('./   ')
 // sequelize
 // .authenticate();
 

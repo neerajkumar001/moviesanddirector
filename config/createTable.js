@@ -60,4 +60,4 @@ async function Insertion() {
     await movie_data();
 
 }
-Insertion();
+module.exports = { Insertion };
