@@ -56,7 +56,7 @@ async function movie_data() {
 
 }
 async function Insertion() {
-    await directortable();
+    // await directortable();
     await movie_data();
 
 }
