@@ -1,1 +1,1 @@
-web: node config/createTable.js
+web: node index.js
